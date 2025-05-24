@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
-import { FaPaperPlane, FaRobot, FaUser } from 'react-icons/fa'
+import { FaPaperPlane, FaHeart, FaUserAlt, FaRobot } from 'react-icons/fa'
 
 const ChatPrompt = () => {
   const [prompt, setPrompt] = useState('')
@@ -9,170 +9,119 @@ const ChatPrompt = () => {
   const conversationsEndRef = useRef(null)
   const textareaRef = useRef(null)
 
-  // Auto-scroll cuando hay nuevos mensajes
   useEffect(() => {
-    if (conversationsEndRef.current) {
-      conversationsEndRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
+    conversationsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [conversations])
 
-  // Agregar manejador de tecla Enter
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevenir el salto de línea por defecto
-      handleSubmit(e); // Enviar el mensaje
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!prompt.trim()) return
-    
-    try {
-      setIsLoading(true)
-      
-      // Agregar el prompt del usuario a las conversaciones
-      const newConversations = [
-        ...conversations, 
-        { role: 'user', content: prompt }
-      ]
-      setConversations(newConversations)
-      setPrompt('') // Limpiar el input inmediatamente para mejor UX
-      
-      const res = await axios.post('https://chatgptback.vercel.app/api/chat', { prompt })
-      
-      // Agregar la respuesta de la IA a las conversaciones
-      setConversations([
-        ...newConversations,
-        { role: 'assistant', content: res.data.response }
-      ])
-    } catch (error) {
-      console.error('Error al obtener respuesta:', error)
-      setConversations([
-        ...conversations,
-        { role: 'user', content: prompt },
-        { role: 'system', content: 'Lo siento, hubo un error al procesar tu solicitud. Por favor intenta de nuevo. 😕' }
-      ])
-      setPrompt('')
-    } finally {
-      setIsLoading(false)
-      // Enfocar el textarea después de enviar
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
+      e.preventDefault()
+      handleSubmit(e)
     }
   }
 
-  // Función para formatear el texto con saltos de línea
-  const formatText = (text) => {
-    // Divide el texto en párrafos y los une con saltos de línea en JSX
-    return text.split('\n').map((paragraph, i) => (
-      <p key={i} className="mb-2 last:mb-0">{paragraph}</p>
-    ));
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!prompt.trim()) return
+
+    setIsLoading(true)
+    const newConvo = [...conversations, { role: 'user', content: prompt }]
+    setConversations(newConvo)
+    setPrompt('')
+
+    try {
+      const res = await axios.post('https://chatgptback.vercel.app/api/chat', { prompt })
+      setConversations([...newConvo, { role: 'assistant', content: res.data.response }])
+    } catch {
+      setConversations([...newConvo, { role: 'assistant', content: '💔 Lo siento, no pude responder ahora. Intenta más tarde.' }])
+    } finally {
+      setIsLoading(false)
+      textareaRef.current?.focus()
+    }
+  }
+
+  const formatText = (text) =>
+    text.split('\n').map((line, i) => <p key={i} className="mb-1 last:mb-0">{line}</p>)
 
   return (
-    <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-purple-200 mx-auto max-w-2xl">
-      {/* Header del chat */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 text-center shadow-md">
-        <h2 className="text-xl font-bold flex items-center justify-center">
-          <FaRobot className="mr-2 text-purple-200" /> ChatGPT App
-        </h2>
+    <div className="max-w-2xl mx-auto bg-pink-50 border border-rose-200 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
+      {/* Encabezado del chat */}
+      <div className="bg-gradient-to-r from-rose-400 to-pink-500 text-white text-center py-5 px-6 flex items-center justify-center gap-3">
+        <FaHeart className="text-2xl animate-pulse" />
+        <h2 className="text-2xl font-semibold font-serif tracking-wide">Enzo AmorBot 💌</h2>
       </div>
-      
-      {/* Historial de conversaciones con mejor formateo - Altura fija */}
-      <div className="h-[400px] overflow-y-auto p-4 bg-gradient-to-b from-purple-50 to-white">
+
+      {/* Cuerpo del chat */}
+      <div className="h-[430px] overflow-y-auto px-5 py-6 space-y-5 bg-gradient-to-b from-pink-100 to-rose-50">
         {conversations.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-600">
-            <div className="p-6 bg-purple-100 rounded-full mb-4 shadow-inner">
-              <FaRobot className="text-5xl text-purple-600" />
-            </div>
-            <p className="text-xl font-semibold text-purple-800">¡Bienvenido al Chat! 👋</p>
-            <p className="mt-2 text-purple-600">¿En qué puedo ayudarte hoy?</p>
+          <div className="text-center text-rose-500 mt-16 animate-fade-in-slow">
+            <p className="text-lg font-semibold">¡Hola! 🥰</p>
+            <p className="text-sm">Estoy aquí para hablar del amor, de tus emociones... o simplemente escucharte.</p>
           </div>
         ) : (
-          <div className="space-y-5">
-            {conversations.map((message, index) => (
-              <div 
-                key={index} 
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          <>
+            {conversations.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-chat-bubble`}
               >
-                <div 
-                  className={`max-w-[85%] p-3 rounded-2xl shadow-md ${
-                    message.role === 'user' 
-                      ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-tr-none' 
-                      : message.role === 'system'
-                        ? 'bg-red-100 text-red-700 border border-red-200'
-                        : 'bg-white text-gray-800 border border-purple-100 rounded-tl-none shadow-md'
-                  }`}
-                >
-                  <div className="flex items-center mb-1 font-medium">
-                    {message.role === 'user' ? (
-                      <>
-                        <FaUser className="mr-1 text-white" /> <span className="text-white font-bold">Tú</span>
-                      </>
-                    ) : message.role === 'system' ? (
-                      'Sistema'
+                <div className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-lg ${
+                  msg.role === 'user'
+                    ? 'bg-pink-500 text-white rounded-tr-none'
+                    : 'bg-white text-rose-700 border border-rose-200 rounded-tl-none'
+                }`}>
+                  <div className="flex items-center gap-2 text-sm font-semibold mb-1">
+                    {msg.role === 'user' ? (
+                      <><FaUserAlt /> Tú</>
                     ) : (
-                      <>
-                        <FaRobot className="mr-1 text-purple-600" /> <span className="text-purple-800">ChatGPT</span>
-                      </>
+                      <><FaRobot className="text-rose-500" /> AmorBot</>
                     )}
                   </div>
-                  <div className={`whitespace-pre-wrap leading-relaxed text-sm md:text-base ${message.role === 'user' ? 'font-medium text-white' : ''}`}>
-                    {formatText(message.content)}
-                  </div>
+                  <div className="text-sm leading-relaxed">{formatText(msg.content)}</div>
                 </div>
               </div>
             ))}
             <div ref={conversationsEndRef} />
-          </div>
+          </>
         )}
-        
+
         {isLoading && (
-          <div className="flex justify-start mt-4">
-            <div className="max-w-[85%] p-3 bg-white border border-purple-100 rounded-2xl rounded-tl-none shadow-md">
-              <div className="flex items-center mb-1 font-medium">
-                <FaRobot className="mr-1 text-purple-600" /> <span className="text-purple-800">ChatGPT</span>
+          <div className="flex justify-start animate-fade-in-fast">
+            <div className="max-w-[75%] px-4 py-3 bg-white border border-rose-200 text-rose-700 rounded-2xl rounded-tl-none shadow-md">
+              <div className="flex gap-1 text-sm font-semibold items-center mb-1">
+                <FaRobot /> AmorBot
               </div>
-              <div className="flex space-x-3">
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              <div className="flex gap-2 mt-1 animate-pulse">
+                <div className="w-2 h-2 bg-rose-400 rounded-full" />
+                <div className="w-2 h-2 bg-rose-300 rounded-full" />
+                <div className="w-2 h-2 bg-rose-200 rounded-full" />
               </div>
             </div>
           </div>
         )}
       </div>
-      
-      {/* Formulario para enviar el prompt - Botón debajo del texto */}
-      <form onSubmit={handleSubmit} className="p-4 bg-gradient-to-r from-purple-100 to-indigo-100 border-t border-purple-200">
-        <div className="mb-2">
-          <textarea
-            ref={textareaRef}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Escribe tu mensaje aquí..."
-            className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-gray-800 resize-none shadow-inner transition-all"
-            rows="2"
-            disabled={isLoading}
-          />
-        </div>
-        
-        <div className="flex items-center">
-          <button
-            type="submit"
-            disabled={isLoading || !prompt.trim()}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center"
-          >
-            <FaPaperPlane className="mr-2" /> Enviar
-          </button>
-        </div>
-        
-        <p className="text-xs text-purple-500 mt-1 text-center">
-          {isLoading ? '⏳ Procesando...' : '💬 Presiona Enter para enviar'}
+
+      {/* Input del usuario */}
+      <form onSubmit={handleSubmit} className="bg-pink-100 border-t border-rose-200 px-5 py-4">
+        <textarea
+          ref={textareaRef}
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Escríbele algo bonito al AmorBot..."
+          rows={2}
+          disabled={isLoading}
+          className="w-full p-3 rounded-xl bg-white text-rose-700 border border-rose-300 shadow-inner focus:ring-2 focus:ring-rose-400 resize-none transition-all"
+        />
+        <button
+          type="submit"
+          disabled={isLoading || !prompt.trim()}
+          className="mt-3 w-full bg-gradient-to-r from-rose-400 to-pink-500 hover:from-rose-500 hover:to-pink-600 text-white py-2 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <FaPaperPlane /> Enviar
+        </button>
+        <p className="text-xs text-center text-rose-400 mt-1 italic">
+          {isLoading ? '✨ EnzoBot está escribiendo algo especial para ti...' : 'Presiona Enter para enviar'}
         </p>
       </form>
     </div>
