@@ -30,7 +30,7 @@ const ChatPrompt = ({ userId }) => {
     setPrompt('')
 
     try {
-      const res = await axios.post('https://backend-gpt-tau.vercel.app//api/chat', { 
+      const res = await axios.post('https://backend-gpt-tau.vercel.app/api/chat', { 
         userId,  // aquí enviamos userId junto con prompt
         prompt 
       })

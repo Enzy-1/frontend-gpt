@@ -9,7 +9,7 @@ export default function Register({ onRegisterSuccess }) {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://backend-gpt-tau.vercel.app//api/register", {
+      const res = await fetch("https://backend-gpt-tau.vercel.app/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, name, password }),

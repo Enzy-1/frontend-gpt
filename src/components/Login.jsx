@@ -7,7 +7,7 @@ export default function Login({ onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("https://backend-gpt-tau.vercel.app//api/login", {
+      const res = await fetch("https://backend-gpt-tau.vercel.app/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, password }),
