@@ -13,7 +13,7 @@ const Header = () => {
         </div>
         <div>
           <span className="text-sm md:text-base text-pink-100 font-medium">
-            Desarrollado con ❤️ para UNICATÓLICA 2025
+            Desarrollado por EnzoNet
           </span>
         </div>
       </div>

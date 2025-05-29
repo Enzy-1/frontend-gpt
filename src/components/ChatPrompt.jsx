@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import { FaPaperPlane, FaHeart, FaUserAlt, FaRobot } from 'react-icons/fa'
 
-const ChatPrompt = () => {
+const ChatPrompt = ({ userId }) => {
   const [prompt, setPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [conversations, setConversations] = useState([])
@@ -30,7 +30,10 @@ const ChatPrompt = () => {
     setPrompt('')
 
     try {
-      const res = await axios.post('https://chatgptback.vercel.app/api/chat', { prompt })
+      const res = await axios.post('https://backend-gpt-tau.vercel.app//api/chat', { 
+        userId,  // aquí enviamos userId junto con prompt
+        prompt 
+      })
       setConversations([...newConvo, { role: 'assistant', content: res.data.response }])
     } catch {
       setConversations([...newConvo, { role: 'assistant', content: '💔 Lo siento, no pude responder ahora. Intenta más tarde.' }])
@@ -48,7 +51,7 @@ const ChatPrompt = () => {
       {/* Encabezado del chat */}
       <div className="bg-gradient-to-r from-rose-400 to-pink-500 text-white text-center py-5 px-6 flex items-center justify-center gap-3">
         <FaHeart className="text-2xl animate-pulse" />
-        <h2 className="text-2xl font-semibold font-serif tracking-wide">Enzo AmorBot 💌</h2>
+        <h2 className="text-2xl font-semibold font-serif tracking-wide">Clara</h2>
       </div>
 
       {/* Cuerpo del chat */}
@@ -74,7 +77,7 @@ const ChatPrompt = () => {
                     {msg.role === 'user' ? (
                       <><FaUserAlt /> Tú</>
                     ) : (
-                      <><FaRobot className="text-rose-500" /> AmorBot</>
+                      <><FaRobot className="text-rose-500" /> Clara</>
                     )}
                   </div>
                   <div className="text-sm leading-relaxed">{formatText(msg.content)}</div>
@@ -89,7 +92,7 @@ const ChatPrompt = () => {
           <div className="flex justify-start animate-fade-in-fast">
             <div className="max-w-[75%] px-4 py-3 bg-white border border-rose-200 text-rose-700 rounded-2xl rounded-tl-none shadow-md">
               <div className="flex gap-1 text-sm font-semibold items-center mb-1">
-                <FaRobot /> AmorBot
+                <FaRobot /> Clara
               </div>
               <div className="flex gap-2 mt-1 animate-pulse">
                 <div className="w-2 h-2 bg-rose-400 rounded-full" />
@@ -121,7 +124,7 @@ const ChatPrompt = () => {
           <FaPaperPlane /> Enviar
         </button>
         <p className="text-xs text-center text-rose-400 mt-1 italic">
-          {isLoading ? '✨ EnzoBot está escribiendo algo especial para ti...' : 'Presiona Enter para enviar'}
+          {isLoading ? '✨ Clara está escribiendo algo especial para ti...' : 'Presiona Enter para enviar'}
         </p>
       </form>
     </div>
